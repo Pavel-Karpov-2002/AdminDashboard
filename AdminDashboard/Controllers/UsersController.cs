@@ -16,6 +16,14 @@ namespace AdminDashboard.Controllers
         }
 
         [HttpGet]
+        [Route("clients")]
+        public ActionResult<List<User>> GetUsers()
+        {
+            List<User> users = _userRepository.GetAll().ToList();
+            return users;
+        }
+
+        [HttpGet]
         public ActionResult<User> User(int id)
         {
             var user = _userRepository.GetById(id);
