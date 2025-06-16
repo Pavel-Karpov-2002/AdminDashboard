@@ -7,6 +7,8 @@ namespace AdminDashboard.DbStuff
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Token> Tokens { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
 
         public SocialNetworkWebDbContext(DbContextOptions<SocialNetworkWebDbContext> options) : base(options) { }
 
