@@ -1,6 +1,6 @@
-﻿using AdminDashboard.DbStuff.Models;
+﻿using AdminDashboard.DbStuff.Interfaces;
+using AdminDashboard.DbStuff.Models;
 using Microsoft.EntityFrameworkCore;
-using AdminDashboard.DbStuff.Interfaces;
 
 namespace AdminDashboard.DbStuff.Repositories
 {
@@ -22,9 +22,35 @@ namespace AdminDashboard.DbStuff.Repositories
             return entity.Id;
         }
 
+        public virtual DbModel Update(DbModel entity)
+        {
+            var updatedEntity = _entyties.Update(entity);
+            _context.SaveChanges();
+            return updatedEntity.Entity;
+        }
+
+        public virtual void DeleteById(int id)
+        {
+            var entity = _entyties.First(x => x.Id == id);
+            _entyties.Remove(entity);
+            _context.SaveChanges();
+        }
+
         public virtual DbModel? GetById(int id)
         {
             return _entyties.SingleOrDefault(ent => ent.Id == id);
+        }
+
+        public virtual void DeleteByEntity(DbModel entity)
+        {
+            var findedEntity = _entyties.First(x => x.Equals(entity));
+            _entyties.Remove(findedEntity);
+            _context.SaveChanges();
+        }
+
+        public virtual IEnumerable<DbModel> GetAll()
+        {
+            return _entyties.ToList();
         }
     }
 }

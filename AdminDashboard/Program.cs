@@ -45,7 +45,7 @@ AppDomain.CurrentDomain
 
 var app = builder.Build();
 
-SeedExtention.Seed(app);
+// SeedExtention.Seed(app);
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
