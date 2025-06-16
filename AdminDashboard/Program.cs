@@ -1,24 +1,51 @@
 using AdminDashboard.DbStuff;
 using AdminDashboard.DbStuff.Repositories;
 using AdminDashboard.Services;
+using AdminDashboard.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = AuthService.AUTH_KEY;
+    })
+    .AddCookie(AuthService.AUTH_KEY, option =>
+    {
+        option.AccessDeniedPath = "/auth/deny";
+        option.LoginPath = "/auth/Login";
+    });
+
 builder.Services.AddControllersWithViews();
-//var connectionString = builder.Configuration.GetConnectionString("localDb");
 
 builder.Services.AddDbContext<SocialNetworkWebDbContext>(options => 
                options.UseSqlite(builder.Configuration.GetConnectionString("localDb")));
-builder.Services.AddScoped<UserBuilder>();
-builder.Services.AddScoped<TokenBuilder>();
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<TokenRepository>();
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+var typeOfBaseRepository = typeof(BaseRepository<>);
+Assembly
+    .GetAssembly(typeOfBaseRepository)
+    .GetTypes()
+    .Where(x => x.BaseType?.IsGenericType ?? false
+        && x.BaseType.GetGenericTypeDefinition() == typeOfBaseRepository)
+    .ToList()
+    .ForEach(repositoryType => builder.Services.AddScoped(repositoryType));
+
+// DI service
+var typeOfBaseServices = typeof(IService);
+AppDomain.CurrentDomain
+    .GetAssemblies()
+    .SelectMany(s => s.GetTypes())
+    .Where(p => typeOfBaseServices.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract)
+    .ToList()
+    .ForEach(serviceType => builder.Services.AddScoped(serviceType));
 
 var app = builder.Build();
 
-//SeedExtention.Seed(app);
+SeedExtention.Seed(app);
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
