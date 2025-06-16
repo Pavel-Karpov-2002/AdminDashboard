@@ -1,5 +1,6 @@
 using AdminDashboard.DbStuff;
 using AdminDashboard.DbStuff.Repositories;
+using AdminDashboard.Endpoints;
 using AdminDashboard.Services;
 using AdminDashboard.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,6 +35,8 @@ builder.Services
     });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<SocialNetworkWebDbContext>(options => 
                options.UseSqlite(builder.Configuration.GetConnectionString("localDb")));
@@ -71,6 +74,14 @@ app.UseCookiePolicy(new CookiePolicyOptions()
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// Подключаем endpoint'ы
+app.MapAuthEndpoints();
+app.MapTokenEndpoints();
+app.MapUserEndpoints();
 
 app.MapControllers();
 
