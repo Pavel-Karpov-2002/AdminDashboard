@@ -1,10 +1,10 @@
-﻿using AdminDashboard.DbStuff.Interfaces;
-using AdminDashboard.DbStuff.Models;
-using System.Collections.Generic;
+﻿using AdminDashboard.DbStuff.Models;
+using Microsoft.EntityFrameworkCore;
+using AdminDashboard.DbStuff.Interfaces;
 
 namespace AdminDashboard.DbStuff.Repositories
 {
-    public class BaseRepository<DbModel>
+    public class BaseRepository<DbModel> : IAddEntity<DbModel> where DbModel : BaseModel
     {
         protected readonly SocialNetworkWebDbContext _context;
         protected readonly DbSet<DbModel> _entyties;
@@ -13,6 +13,13 @@ namespace AdminDashboard.DbStuff.Repositories
         {
             _context = context;
             _entyties = _context.Set<DbModel>();
+        }
+
+        public int Add(DbModel entity)
+        {
+            _entyties.Add(entity);
+            _context.SaveChanges();
+            return entity.Id;
         }
 
         public virtual DbModel? GetById(int id)
