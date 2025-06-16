@@ -60,5 +60,18 @@ namespace AdminDashboard.Controllers
             List<Payment> payments = user.Payments;
             return payments;
         }
+
+        [HttpPost]
+        [Route("delete")]
+        public ActionResult Delete(int id)
+        {
+            var user = _userRepository.GetById(id);
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
     }
 }
