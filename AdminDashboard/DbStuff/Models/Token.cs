@@ -3,7 +3,9 @@
     public class Token : BaseModel
     {
         public string? NameToken { get; set; }
-        public int CountToken { get; set; }
-        public virtual User User { get; set; }
+        public float Rate { get; set; }
+
+        public virtual List<UserToken>? UserTokens { get; set; }
+        public virtual List<Payment>? UserPayments { get; set; }
     }
 }

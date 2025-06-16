@@ -6,6 +6,7 @@ namespace AdminDashboard.DbStuff
     public class SocialNetworkWebDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Token> Tokens { get; set; }
 
         public SocialNetworkWebDbContext(DbContextOptions<SocialNetworkWebDbContext> options) : base(options) { }
 
@@ -13,8 +14,14 @@ namespace AdminDashboard.DbStuff
         {
             base.OnModelCreating(builder);
             builder.Entity<User>()
-                .HasMany(user => user.Balance)
+                .HasMany(user => user.TokenBalance)
                 .WithOne(balance => balance.User);
+            builder.Entity<User>()
+                .HasMany(user => user.Payments)
+                .WithOne(payment => payment.User);
+            builder.Entity<UserToken>()
+                .HasOne(userToken => userToken.Token)
+                .WithMany(token => token.UserTokens);
         }
     }
 }
