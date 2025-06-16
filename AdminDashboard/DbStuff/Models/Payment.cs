@@ -1,4 +1,6 @@
-﻿namespace AdminDashboard.DbStuff.Models
+﻿using System.Text.Json.Serialization;
+
+namespace AdminDashboard.DbStuff.Models
 {
     public class Payment : BaseModel
     {
@@ -6,6 +8,7 @@
         public string PaymentName { get; set; }
         public float PaymentCost { get; set; }
 
+        [JsonIgnore]
         public virtual User User { get; set; }
     }
 }

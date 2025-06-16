@@ -44,20 +44,29 @@ namespace AdminDashboard.Controllers
                 _userRepository.Add(user);
                 return CreatedAtAction(nameof(User), new { id = user.Id });
             }
+
             return BadRequest();
         }
 
         [HttpGet]
         [Route("payments")]
-        public ActionResult<List<Payment>> GetPayments(int userId)
+        public ActionResult<List<Payment>> GetPayments(int userId, int take)
         {
             User user = _userRepository.GetUserWithPayments(userId);
+
             if (user is null)
             {
                 return BadRequest();
             }
 
-            List<Payment> payments = user.Payments;
+            int lastPayment = user.Payments.Count - take;
+
+            if (lastPayment < 0)
+            {
+                return BadRequest();
+            }
+
+            List<Payment> payments = user.Payments.GetRange(lastPayment, take);
             return payments;
         }
 
@@ -66,6 +75,7 @@ namespace AdminDashboard.Controllers
         public ActionResult Delete(int id)
         {
             var user = _userRepository.GetById(id);
+
             if (user == null)
             {
                 return BadRequest();
