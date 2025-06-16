@@ -7,11 +7,16 @@ namespace AdminDashboard.DbStuff.Repositories
     {
         public UserRepository(SocialNetworkWebDbContext context) : base(context) { }
 
-        public async Task<User>? GetUserWithPaymentsAndTokenBalance(int id)
-        => await _entyties
+        public User GetUserWithPaymentsAndTokenBalance(int id)
+        => _entyties
             .Include(user => user.Payments)
             .Include(user => user.TokenBalance)
-            .FirstOrDefaultAsync(user => user.Id == id);
+            .FirstOrDefault(user => user.Id == id);
+
+        public User GetUserWithPayments(int id)
+        => _entyties
+            .Include(user => user.Payments)
+            .FirstOrDefault(user => user.Id == id);
 
         public User? GetUserByEmailAndPassword(string email, string password)
             => _entyties

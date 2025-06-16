@@ -26,7 +26,7 @@ namespace AdminDashboard.Controllers
         [HttpGet]
         public ActionResult<User> User(int id)
         {
-            var user = _userRepository.GetById(id);
+            var user = _userRepository.GetUserWithPaymentsAndTokenBalance(id);
 
             if (user == null)
             {
@@ -45,6 +45,20 @@ namespace AdminDashboard.Controllers
                 return CreatedAtAction(nameof(User), new { id = user.Id });
             }
             return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("payments")]
+        public ActionResult<List<Payment>> GetPayments(int userId)
+        {
+            User user = _userRepository.GetUserWithPayments(userId);
+            if (user is null)
+            {
+                return BadRequest();
+            }
+
+            List<Payment> payments = user.Payments;
+            return payments;
         }
     }
 }
