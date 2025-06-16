@@ -1,4 +1,5 @@
-﻿using AdminDashboard.DbStuff.Repositories;
+﻿using AdminDashboard.DbStuff.Models;
+using AdminDashboard.DbStuff.Repositories;
 using AdminDashboard.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,27 @@ namespace AdminDashboard.Controllers
     {
         private readonly UserRepository _userRepository;
         private readonly AuthService _authService;
+        private readonly JwtProvider _jwtProvider;
 
-        public AuthController(UserRepository userRepository, AuthService authService)
+        public AuthController(UserRepository userRepository, AuthService authService, JwtProvider jwtProvider)
         {
             _userRepository = userRepository;
             _authService = authService;
+            _jwtProvider = jwtProvider;
+        }
+
+        [HttpPost("registration")]
+        public ActionResult Registration([Bind("Login,Password,Email")] User user)
+        {
+            try
+            {
+                _userRepository.Add(user);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet]
@@ -33,14 +50,22 @@ namespace AdminDashboard.Controllers
         [Route("login")]
         public ActionResult<bool> Login(string email, string password)
         {
-            var user = _userRepository.GetUserByEmailAndPassword(email, password);
+            var user = _userRepository.GetUserByEmail(email);
             if (user is null)
             {
                 return BadRequest();
             }
 
-            _authService.SignInUser(user);
-            return Ok(true);
+            var isAuthorize = _authService.PasswordVerify(password, user.Password);
+
+            if (isAuthorize == false)
+            {
+                return BadRequest();
+            }
+
+            var token = _jwtProvider.GenerateToken(user);
+            _authService.SignInUser(token);
+            return Ok(token);
         }
 
         [HttpPost]

@@ -2,20 +2,35 @@ using AdminDashboard.DbStuff;
 using AdminDashboard.DbStuff.Repositories;
 using AdminDashboard.Services;
 using AdminDashboard.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services
-    .AddAuthentication(options =>
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(
+    JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        options.DefaultScheme = AuthService.AUTH_KEY;
-    })
-    .AddCookie(AuthService.AUTH_KEY, option =>
-    {
-        option.AccessDeniedPath = "/auth/deny";
-        option.LoginPath = "/auth/Login";
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOptions.SECRET_KEY))
+        };
+        options.Events = new JwtBearerEvents()
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["JWT"];
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddControllersWithViews();
@@ -34,7 +49,6 @@ Assembly
     .ToList()
     .ForEach(repositoryType => builder.Services.AddScoped(repositoryType));
 
-// DI service
 var typeOfBaseServices = typeof(IService);
 AppDomain.CurrentDomain
     .GetAssemblies()
@@ -45,11 +59,17 @@ AppDomain.CurrentDomain
 
 var app = builder.Build();
 
-// SeedExtention.Seed(app);
-// Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
 
+app.UseCookiePolicy(new CookiePolicyOptions()
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+    HttpOnly = HttpOnlyPolicy.Always,
+    Secure = CookieSecurePolicy.Always
+});
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

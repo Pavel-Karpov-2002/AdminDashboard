@@ -18,21 +18,16 @@ namespace AdminDashboard.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public void SignInUser(User user)
+        public bool PasswordVerify(string password, string passwordVerify)
         {
-            var claims = new List<Claim>
-            {
-                new Claim("id", user.Id.ToString()),
-                new Claim("login", user.Login ?? "user"),
-                new Claim("email", user.Email ?? "")
-            };
+            bool isVerifed = passwordVerify.Equals(password);
+            return isVerifed;
+        }
 
-            var identity = new ClaimsIdentity(claims, AUTH_KEY);
-            var principal = new ClaimsPrincipal(identity);
+        public void SignInUser(string token)
+        {
             _httpContextAccessor
-                .HttpContext
-                .SignInAsync(AUTH_KEY, principal)
-                .Wait();
+                .HttpContext.Response.Cookies.Append("JWT", token);
         }
     }
 }

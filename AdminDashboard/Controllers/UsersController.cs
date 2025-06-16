@@ -1,5 +1,6 @@
 ﻿using AdminDashboard.DbStuff.Models;
 using AdminDashboard.DbStuff.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdminDashboard.Controllers
@@ -35,18 +36,6 @@ namespace AdminDashboard.Controllers
             return user;
         }
 
-        [HttpPost]
-        public ActionResult<User> Create([Bind("Login,Password,Email,Id")] User user)
-        {
-            if (ModelState.IsValid)
-            {
-                _userRepository.Add(user);
-                return CreatedAtAction(nameof(User), new { id = user.Id });
-            }
-
-            return BadRequest();
-        }
-
         [HttpGet("payments")]
         public ActionResult<List<Payment>> GetPayments(int userId, int take)
         {
@@ -69,6 +58,7 @@ namespace AdminDashboard.Controllers
         }
 
         [HttpDelete("delete")]
+        [Authorize]
         public ActionResult Delete(int id)
         {
             var user = _userRepository.GetById(id);
@@ -82,6 +72,7 @@ namespace AdminDashboard.Controllers
         }
 
         [HttpPut("update")]
+        [Authorize]
         public ActionResult Update(int id, [FromBody]User editedUser)
         {
             var user = _userRepository.GetById(id);

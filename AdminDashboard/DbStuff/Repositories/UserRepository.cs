@@ -24,8 +24,8 @@ namespace AdminDashboard.DbStuff.Repositories
             .Include(user => user.Payments)
             .FirstOrDefault(user => user.Id == id);
 
-        public User? GetUserByEmailAndPassword(string email, string password)
+        public User? GetUserByEmail(string email)
             => _entyties
-            .FirstOrDefault(user => user.Email.Equals(email) && user.Password!.Equals(password));
+            .FirstOrDefault(user => user.Email.Equals(email));
     }
 }

@@ -15,7 +15,8 @@ namespace AdminDashboard.Controllers
             _tokenRepository = tokenRepository;
         }
 
-        [HttpGet("all")]
+        [HttpGet]
+        [Route("all")]
         public ActionResult<List<Token>> Rates()
         {
             List<Token> tokens = _tokenRepository.GetAll().ToList();
