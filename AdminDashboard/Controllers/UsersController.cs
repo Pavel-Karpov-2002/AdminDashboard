@@ -83,5 +83,27 @@ namespace AdminDashboard.Controllers
 
             return Ok();
         }
+
+        [HttpPut]
+        [Route("update")]
+        public ActionResult Update(int id, [FromBody]User editedUser)
+        {
+            var user = _userRepository.GetById(id);
+
+            if (user is null)
+            {
+                return BadRequest();
+            }
+
+            user.Login = editedUser.Login;
+            user.Password = editedUser.Password;
+            user.Email = editedUser.Email;
+            if (editedUser.TokenBalance is not null)
+            {
+                user.TokenBalance = editedUser.TokenBalance;
+            }
+            _userRepository.Update(user);
+            return Ok();
+        }
     }
 }

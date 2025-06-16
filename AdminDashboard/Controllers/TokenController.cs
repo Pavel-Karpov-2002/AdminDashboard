@@ -15,6 +15,13 @@ namespace AdminDashboard.Controllers
             _tokenRepository = tokenRepository;
         }
 
+        [HttpGet("all")]
+        public ActionResult<List<Token>> Rates()
+        {
+            List<Token> tokens = _tokenRepository.GetAll().ToList();
+            return tokens;
+        }
+
         [HttpGet]
         public ActionResult<Token> Rate(string nameToken)
         {
@@ -31,13 +38,6 @@ namespace AdminDashboard.Controllers
             }
             _tokenRepository.UpdateTokenRate(nameToken, newRate);
             return Ok();
-        }
-
-        [HttpGet]
-        public ActionResult<List<Token>> Rates()
-        {
-            List<Token> tokens = _tokenRepository.GetAll().ToList();
-            return tokens;
         }
     }
 }

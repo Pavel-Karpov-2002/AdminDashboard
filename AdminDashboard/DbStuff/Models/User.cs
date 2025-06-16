@@ -1,4 +1,6 @@
-﻿namespace AdminDashboard.DbStuff.Models
+﻿using System.Text.Json.Serialization;
+
+namespace AdminDashboard.DbStuff.Models
 {
     public class User : BaseModel
     {

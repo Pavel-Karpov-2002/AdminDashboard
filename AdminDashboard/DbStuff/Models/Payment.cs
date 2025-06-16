@@ -9,6 +9,6 @@ namespace AdminDashboard.DbStuff.Models
         public float PaymentCost { get; set; }
 
         [JsonIgnore]
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
     }
 }

@@ -6,6 +6,5 @@
         public float Rate { get; set; }
 
         public virtual List<UserToken>? UserTokens { get; set; }
-        public virtual List<Payment>? UserPayments { get; set; }
     }
 }
