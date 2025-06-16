@@ -15,11 +15,10 @@ namespace AdminDashboard.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpGet]
-        [Route("clients")]
+        [HttpGet("clients")]
         public ActionResult<List<User>> GetUsers()
         {
-            List<User> users = _userRepository.GetAll().ToList();
+            List<User> users = _userRepository.GetAllUsersWithPaymentsAndTokenBalance();
             return users;
         }
 
@@ -48,8 +47,7 @@ namespace AdminDashboard.Controllers
             return BadRequest();
         }
 
-        [HttpGet]
-        [Route("payments")]
+        [HttpGet("payments")]
         public ActionResult<List<Payment>> GetPayments(int userId, int take)
         {
             User user = _userRepository.GetUserWithPayments(userId);
@@ -70,8 +68,7 @@ namespace AdminDashboard.Controllers
             return payments;
         }
 
-        [HttpPost]
-        [Route("delete")]
+        [HttpDelete("delete")]
         public ActionResult Delete(int id)
         {
             var user = _userRepository.GetById(id);
@@ -84,8 +81,7 @@ namespace AdminDashboard.Controllers
             return Ok();
         }
 
-        [HttpPut]
-        [Route("update")]
+        [HttpPut("update")]
         public ActionResult Update(int id, [FromBody]User editedUser)
         {
             var user = _userRepository.GetById(id);
@@ -98,6 +94,7 @@ namespace AdminDashboard.Controllers
             user.Login = editedUser.Login;
             user.Password = editedUser.Password;
             user.Email = editedUser.Email;
+
             if (editedUser.TokenBalance is not null)
             {
                 user.TokenBalance = editedUser.TokenBalance;

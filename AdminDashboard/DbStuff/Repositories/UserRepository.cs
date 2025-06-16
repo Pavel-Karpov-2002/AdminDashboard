@@ -13,6 +13,12 @@ namespace AdminDashboard.DbStuff.Repositories
             .Include(user => user.TokenBalance)
             .FirstOrDefault(user => user.Id == id);
 
+        public List<User> GetAllUsersWithPaymentsAndTokenBalance()
+        => _entyties
+            .Include(user => user.Payments)
+            .Include(user => user.TokenBalance)
+            .ToList();
+
         public User GetUserWithPayments(int id)
         => _entyties
             .Include(user => user.Payments)
