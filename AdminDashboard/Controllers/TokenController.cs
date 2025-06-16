@@ -22,7 +22,7 @@ namespace AdminDashboard.Controllers
         }
 
         [HttpPost]
-        public ActionResult<bool> Rate(string nameToken, float newRate)
+        public ActionResult Rate(string nameToken, float newRate)
         {
             var token = _tokenRepository.GetTokenByName(nameToken);
             if (token is null)
@@ -31,6 +31,13 @@ namespace AdminDashboard.Controllers
             }
             _tokenRepository.UpdateTokenRate(nameToken, newRate);
             return Ok();
+        }
+
+        [HttpGet]
+        public ActionResult<List<Token>> Rates()
+        {
+            List<Token> tokens = _tokenRepository.GetAll().ToList();
+            return tokens;
         }
     }
 }
