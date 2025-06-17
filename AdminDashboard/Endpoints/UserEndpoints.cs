@@ -1,6 +1,7 @@
 ﻿using AdminDashboard.DbStuff.Models;
 using AdminDashboard.DbStuff.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AdminDashboard.Endpoints
 {
@@ -8,21 +9,21 @@ namespace AdminDashboard.Endpoints
     {
         public static void MapUserEndpoints(this WebApplication app)
         {
-            app.MapGet("/users/clients", (UserRepository userRepo) =>
+            app.MapGet("/clients", (UserRepository userRepository) =>
             {
-                var users = userRepo.GetAllUsersWithPaymentsAndTokenBalance();
+                var users = userRepository.GetAllUsersWithPaymentsAndTokenBalance();
                 return Results.Ok(users);
             });
 
-            app.MapGet("/users", (int id, UserRepository userRepo) =>
+            app.MapGet("/user", (int id, UserRepository userRepository) =>
             {
-                var user = userRepo.GetUserWithPaymentsAndTokenBalance(id);
+                var user = userRepository.GetUserWithPaymentsAndTokenBalance(id);
                 return user is null ? Results.BadRequest() : Results.Ok(user);
             });
 
-            app.MapGet("/users/payments", (int userId, int take, UserRepository userRepo) =>
+            app.MapGet("/user/payments", (int userId, int take, UserRepository userRepository) =>
             {
-                var user = userRepo.GetUserWithPayments(userId);
+                var user = userRepository.GetUserWithPayments(userId);
                 if (user is null || user.Payments.Count < take)
                 {
                     return Results.BadRequest();
@@ -36,30 +37,23 @@ namespace AdminDashboard.Endpoints
                 return Results.Ok(payments);
             });
 
-            app.MapDelete("/users/delete", [Authorize] (int id, UserRepository userRepo) =>
+            app.MapDelete("/user/delete", [Authorize] (int id, UserRepository userRepository) =>
             {
-                var user = userRepo.GetById(id);
-                return user is null ? Results.BadRequest() : Results.Ok();
-            });
-
-            app.MapPut("/users/update", [Authorize] (int id, User editedUser, UserRepository userRepo) =>
-            {
-                var user = userRepo.GetById(id);
+                var user = userRepository.GetById(id);
                 if (user is null)
                 {
                     return Results.BadRequest();
                 }
-
-                user.Login = editedUser.Login;
-                user.Password = editedUser.Password;
-                user.Email = editedUser.Email;
-
-                if (editedUser.TokenBalance is not null)
+                else
                 {
-                    user.TokenBalance = editedUser.TokenBalance;
+                    userRepository.DeleteById(id);
+                    return Results.Ok();
                 }
+            });
 
-                userRepo.Update(user);
+            app.MapPut("/user/update", [Authorize] (int id, User editedUser, UserRepository userRepository) =>
+            {
+                userRepository.UpdateUser(editedUser);
                 return Results.Ok();
             });
         }   

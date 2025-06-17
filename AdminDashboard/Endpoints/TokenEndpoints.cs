@@ -18,15 +18,16 @@ namespace AdminDashboard.Endpoints
                 return token is null ? Results.NotFound() : Results.Ok(token);
             });
 
-            app.MapPost("/rate", (string nameToken, float newRate, TokenRepository tokenRepo) =>
+            app.MapPut("/rate/update", (int id, Token newToken, TokenRepository tokenRepo) =>
             {
-                var token = tokenRepo.GetTokenByName(nameToken);
+                var token = tokenRepo.GetById(id);
                 if (token is null)
                 {
                     return Results.BadRequest();
                 }
 
-                tokenRepo.UpdateTokenRate(nameToken, newRate);
+                tokenRepo.UpdateTokenName(id, newToken.NameToken);
+                tokenRepo.UpdateTokenRate(id, newToken.Rate);
                 return Results.Ok();
             });
         }

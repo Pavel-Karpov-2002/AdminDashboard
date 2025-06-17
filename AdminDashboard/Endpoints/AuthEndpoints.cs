@@ -2,6 +2,7 @@
 using AdminDashboard.DbStuff.Repositories;
 using AdminDashboard.Services;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace AdminDashboard.Endpoints
 {
@@ -9,11 +10,11 @@ namespace AdminDashboard.Endpoints
     {
         public static void MapAuthEndpoints(this WebApplication app)
         {
-            app.MapPost("/auth/registration", (User user, UserRepository userRepo) =>
+            app.MapPost("/registration", (User user, UserRepository userRepository) =>
             {
                 try
                 {
-                    userRepo.Add(user);
+                    userRepository.Add(user);
                     return Results.Ok();
                 }
                 catch
@@ -22,14 +23,20 @@ namespace AdminDashboard.Endpoints
                 }
             });
 
-            app.MapGet("/auth", (HttpContext http) =>
+            app.MapGet("/auth", (HttpContext http, UserRepository userRepository) =>
             {
-                return http.User.Identity?.IsAuthenticated == true
-                    ? Results.Ok(true)
-                    : Results.BadRequest();
+                if (http.User.Identity?.IsAuthenticated == true)
+                {
+                    var user = userRepository.GetById((int.Parse)(http.User.Claims.First(c => c.Type == "id").Value));
+                    return Results.Ok(user);
+                }
+                else
+                {
+                    return Results.BadRequest();
+                }
             });
 
-            app.MapPost("/auth/login", (
+            app.MapPost("/login", (
                 string email,
                 string password,
                 UserRepository userRepo,
@@ -45,10 +52,10 @@ namespace AdminDashboard.Endpoints
 
                 var token = jwtProvider.GenerateToken(user);
                 authService.SignInUser(token);
-                return Results.Ok();
+                return Results.Ok(token);
             });
 
-            app.MapPost("/auth/logout", async (HttpContext http) =>
+            app.MapPost("/logout", async (HttpContext http) =>
             {
                 await http.SignOutAsync();
                 return Results.Ok(true);
