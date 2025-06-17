@@ -1,16 +1,11 @@
-﻿using AdminDashboard.DbStuff.Models;
-using AdminDashboard.DbStuff.Repositories;
+﻿using AdminDashboard.DbStuff.Repositories;
 using AdminDashboard.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
 
 namespace AdminDashboard.Services
 {
     public class AuthService : IService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public const string AUTH_KEY = "keyYEKkey";
 
         public AuthService(UserRepository userRepository,
             IHttpContextAccessor httpContextAccessor)
@@ -27,7 +22,13 @@ namespace AdminDashboard.Services
         public void SignInUser(string token)
         {
             _httpContextAccessor
-                .HttpContext.Response.Cookies.Append("JWT", token);
+                .HttpContext.Response.Cookies.Append("JWT", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                });
         }
     }
 }
