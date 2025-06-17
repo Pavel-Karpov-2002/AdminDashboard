@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
 
   async function loadUsers() {
     try {
-      const res = await axios.get<User[]>("http://localhost:5000/clients");
+      const res = await axios.get<User[]>("http://localhost:5000/clients", { withCredentials: true });
       setUsers(res.data);
     } catch (e) {
       console.error(e);
@@ -34,7 +34,7 @@ const Dashboard: React.FC = () => {
 
   async function loadTokenRates() {
     try {
-      const res = await axios.get<Token[]>("http://localhost:5000/rate/all");
+      const res = await axios.get<Token[]>("http://localhost:5000/rate/all", { withCredentials: true });
       setTokenRates(res.data);
     } catch (e) {
       console.error(e);
@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
     if (!window.confirm("Вы уверены, что хотите удалить этого пользователя?" + userId)) return;
 
     try {
-      await axios.delete(`http://localhost:5000/user/delete?id=${userId}`);
+      await axios.delete(`http://localhost:5000/user/delete?id=${userId}`, { withCredentials: true });
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
     } catch (e) {
       console.error("Ошибка при удалении пользователя", e);
