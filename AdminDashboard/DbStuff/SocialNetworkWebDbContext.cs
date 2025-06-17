@@ -17,13 +17,16 @@ namespace AdminDashboard.DbStuff
             base.OnModelCreating(builder);
             builder.Entity<User>()
                 .HasMany(user => user.TokenBalance)
-                .WithOne(balance => balance.User);
+                .WithOne(balance => balance.User)
+                .OnDelete(DeleteBehavior.Cascade); ;
             builder.Entity<User>()
                 .HasMany(user => user.Payments)
-                .WithOne(payment => payment.User);
+                .WithOne(payment => payment.User)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<UserToken>()
                 .HasOne(userToken => userToken.Token)
-                .WithMany(token => token.UserTokens);
+                .WithMany(token => token.UserTokens)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

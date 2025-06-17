@@ -6,7 +6,6 @@ namespace AdminDashboard.DbStuff.Models
     {
         public float CountToken { get; set; }
 
-        [JsonIgnore]
         public virtual Token? Token { get; set; }
 
         [JsonIgnore]
