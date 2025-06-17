@@ -1,36 +1,50 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Login } from "./pages/Login";
-import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import { UserProvider } from "./context/UserContext";
 import PrivateRoute from "./components/PrivateRoute";
 import { AdminProvider } from "./context/AdminContext";
-import UsersList from "./pages/UsersList";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/auth', { withCredentials: true })
+      .then(res => {
+        console.log("✅ AUTH success", res.data);
+        setIsAuthenticated(true);
+      })
+      .catch(err => {
+        console.log("❌ AUTH failed", err);
+        setIsAuthenticated(false);
+      });
+  }, []);
+
   return (
-    <UserProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/admin"
-          element={
-            <AdminProvider>
-              <PrivateRoute>
-                <Dashboard />
-                <UsersList />
-              </PrivateRoute>
-            </AdminProvider>
-          }
-        />
-
-
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
-    </UserProvider>
+      <UserProvider>
+        <Routes>
+          <Route path="/" element={<RootRedirect isAuthenticated={isAuthenticated} />} />
+          <Route path="/login" element={<Login isAuthenticated={isAuthenticated} />} />
+          <Route
+            path="/dashboard"
+            element={
+              <AdminProvider>
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <Dashboard />
+                </PrivateRoute>
+              </AdminProvider>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </UserProvider>
   );
+}
+
+const RootRedirect: React.FC<{ isAuthenticated: boolean }> = ({ isAuthenticated }) => {
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
 };
 
 export default App;
-

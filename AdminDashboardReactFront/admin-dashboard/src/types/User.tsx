@@ -1,6 +1,10 @@
+import { Payment } from "./Payment";
+import { UserToken } from "./UserToken";
+
 export interface User {
     id: number;
     login: string;
-    password: string;
-    balance: Record<string, number>;
+    email: string;
+    tokenBalance: UserToken[];
+    payments: Payment[];
 }

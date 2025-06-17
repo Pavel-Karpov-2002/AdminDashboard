@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useState } from "react";
 import { User } from "../types/User";
+import axios from "axios";
 
 interface UserContextType {
     user: User | null;
     login: (login: string, password: string) => Promise<boolean>;
-    register: (login: string, password: string) => Promise<void>;
     logout: () => void;
-    updateUser: (updatedUser: User) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -14,61 +13,32 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    const login = async (login: string, password: string): Promise<boolean> => {
+    const login = async (email: string, password: string): Promise<boolean> => {
         try {
-            const response = await fetch("https://localhost:5000/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ login, password }),
-            });
-            if (!response.ok) return false;
-            const userData: User = await response.json();
-            setUser(userData);
-            return true;
-        } catch (error) {
-            console.error("Login error:", error);
+            const response = await axios.post(
+                    `http://localhost:5000/login?email=${email}&password=${password}`,
+                    null,
+                    { withCredentials: true }
+            );
+            if (response.status === 200)
+            {
+                const userData: User = response.data;
+                setUser(userData);
+                return true;
+            }
             return false;
+        } 
+        catch (error) {
+            console.error("Login error:", error);
+            alert("Login failed. Please try again.");
         }
-    };
-
-    const register = async (login: string, password: string): Promise<void> => {
-        try {
-            const response = await fetch("https://localhost:5000/api/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ login, password }),
-            });
-            if (!response.ok) throw new Error("Registration failed");
-            const userData: User = await response.json();
-            setUser(userData);
-        } catch (error) {
-            console.error("Registration error:", error);
-        }
+        return false;
     };
 
     const logout = () => setUser(null);
 
-    const updateUser = async (updatedUser: User) => {
-        try {
-            const response = await fetch("https://localhost:5000/api/users/" + updatedUser.id, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedUser),
-            });
-            if (!response.ok) throw new Error("Failed to update user");
-        } catch (error) {
-            console.error("Error updating user:", error);
-        }
-    };
-
     return (
-        <UserContext.Provider value={{ user, login, register, logout, updateUser }}>
+        <UserContext.Provider value={{ user, login, logout }}>
             {children}
         </UserContext.Provider>
     );
