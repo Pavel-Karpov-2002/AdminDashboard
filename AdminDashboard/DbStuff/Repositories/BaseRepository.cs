@@ -41,7 +41,7 @@ namespace AdminDashboard.DbStuff.Repositories
             return _entyties.SingleOrDefault(ent => ent.Id == id);
         }
 
-        public virtual void DeleteByEntity(DbModel entity)
+        public virtual void DeleteByEntity<DeleteDbModel>(DeleteDbModel entity) where DeleteDbModel : BaseModel
         {
             var findedEntity = _entyties.First(x => x.Equals(entity));
             _entyties.Remove(findedEntity);

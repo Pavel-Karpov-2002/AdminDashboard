@@ -10,10 +10,18 @@ namespace AdminDashboard.DbStuff.Repositories
         _entyties
         .FirstOrDefault(token => token.NameToken == nameToken);
 
-        public Token UpdateTokenRate(string nameToken, float rate)
+        public Token UpdateTokenRate(int id, float rate)
         {
-            var token = _entyties.FirstOrDefault(token => token.NameToken == nameToken);
+            var token = GetById(id);
             token.Rate = rate;
+            _context.SaveChanges();
+            return token;
+        }
+
+        public Token UpdateTokenName(int id, string nameToken)
+        {
+            var token = GetById(id);
+            token.NameToken = nameToken;
             _context.SaveChanges();
             return token;
         }
